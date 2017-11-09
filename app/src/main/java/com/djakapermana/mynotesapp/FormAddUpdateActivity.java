@@ -80,7 +80,8 @@ public class FormAddUpdateActivity extends AppCompatActivity implements View.OnC
         String actionBarTitle = null;
         String btnTitle = null;
 
-        if(isEdit){
+        if(note != null){
+            isEdit = true;
             actionBarTitle = "Ubah";
             btnTitle = "Update";
             edtTitle.setText(note.getTitle());

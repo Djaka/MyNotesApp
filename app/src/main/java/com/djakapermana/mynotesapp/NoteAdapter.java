@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -60,6 +61,8 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder
                 Uri uri = Uri.parse(CONTENT_URI + "/" + note.getId());
 
                 intent.setData(uri);
+
+                Log.d("NoteAdapter: ", "" + position);
 
 //                intent.putExtra(FormAddUpdateActivity.EXTRA_POSITION, position);
 //                intent.putExtra(FormAddUpdateActivity.EXTRA_NOTE, getListNotes().get(position));
