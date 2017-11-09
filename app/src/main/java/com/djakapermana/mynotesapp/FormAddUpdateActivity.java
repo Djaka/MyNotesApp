@@ -1,10 +1,14 @@
 package com.djakapermana.mynotesapp;
 
+import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -17,6 +21,11 @@ import com.djakapermana.mynotesapp.entity.Note;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import static com.djakapermana.mynotesapp.db.DatabaseContract.CONTENT_URI;
+import static com.djakapermana.mynotesapp.db.DatabaseContract.NoteColumns.DATE;
+import static com.djakapermana.mynotesapp.db.DatabaseContract.NoteColumns.DESCRIPTION;
+import static com.djakapermana.mynotesapp.db.DatabaseContract.NoteColumns.TITLE;
 
 public class FormAddUpdateActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -50,12 +59,23 @@ public class FormAddUpdateActivity extends AppCompatActivity implements View.OnC
         noteHelper = new NoteHelper(this);
         noteHelper.open();
 
-        note = getIntent().getParcelableExtra(EXTRA_NOTE);
+        Uri uri = getIntent().getData();
 
-        if(note != null){
-            position = getIntent().getIntExtra(EXTRA_POSITION, 0);
-            isEdit = true;
+        if(uri != null){
+            Cursor cursor = getContentResolver().query(uri, null, null, null, null);
+
+            if(cursor != null){
+                if(cursor.moveToFirst())note = new Note(cursor);
+                cursor.close();
+            }
         }
+
+//        note = getIntent().getParcelableExtra(EXTRA_NOTE);
+//
+//        if(note != null){
+//            position = getIntent().getIntExtra(EXTRA_POSITION, 0);
+//            isEdit = true;
+//        }
 
         String actionBarTitle = null;
         String btnTitle = null;
@@ -92,24 +112,39 @@ public class FormAddUpdateActivity extends AppCompatActivity implements View.OnC
 
             boolean isEmpty = false;
 
-            if(!isEmpty){
-                Note newNote = new Note();
-                newNote.setTitle(title);
-                newNote.setDescription(descripion);
+            if(TextUtils.isEmpty(title)){
+                isEmpty = true;
+                edtTitle.setError("Field can not be blank");
+            }
 
-                Intent intent = new Intent();
+            if(!isEmpty){
+
+                ContentValues values = new ContentValues();
+
+                values.put(TITLE, title);
+                values.put(DESCRIPTION, descripion);
+//                Note newNote = new Note();
+//                newNote.setTitle(title);
+//                newNote.setDescription(descripion);
+
+//                Intent intent = new Intent();
 
                 if (isEdit){
-                    newNote.setDate(note.getDate());
-                    newNote.setId(note.getId());
-                    noteHelper.update(newNote);
 
-                    intent.putExtra(EXTRA_POSITION, position);
-                    setResult(RESULT_UPDATE, intent);
+                    getContentResolver().update(getIntent().getData(), values, null, null);
+                    setResult(RESULT_UPDATE);
+//                    newNote.setDate(note.getDate());
+//                    newNote.setId(note.getId());
+//                    noteHelper.update(newNote);
+
+//                    intent.putExtra(EXTRA_POSITION, position);
+//                    setResult(RESULT_UPDATE, intent);
                     finish();
                 }else {
-                    newNote.setDate(getCurrentDate());
-                    noteHelper.insert(newNote);
+                    values.put(DATE, getCurrentDate());
+                    getContentResolver().insert(CONTENT_URI, values);
+//                    newNote.setDate(getCurrentDate());
+//                    noteHelper.insert(newNote);
 
                     setResult(RESULT_ADD);
                     finish();
@@ -170,11 +205,12 @@ public class FormAddUpdateActivity extends AppCompatActivity implements View.OnC
                         if(isDialogClose){
                             finish();
                         }else {
-                            noteHelper.delete(note.getId());
-
-                            Intent intent = new Intent();
-                            intent.putExtra(EXTRA_POSITION, position);
-                            setResult(RESULT_DELETE, intent);
+                            getContentResolver().delete(getIntent().getData(), null, null);
+//                            noteHelper.delete(note.getId());
+//
+//                            Intent intent = new Intent();
+//                            intent.putExtra(EXTRA_POSITION, position);
+                            setResult(RESULT_DELETE, null);
                             finish();
                         }
                     }

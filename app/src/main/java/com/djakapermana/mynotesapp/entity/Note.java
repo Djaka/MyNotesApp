@@ -1,7 +1,14 @@
 package com.djakapermana.mynotesapp.entity;
 
+import android.database.Cursor;
 import android.os.Parcel;
 import android.os.Parcelable;
+
+import com.djakapermana.mynotesapp.db.DatabaseContract;
+
+import static android.provider.BaseColumns._ID;
+import static com.djakapermana.mynotesapp.db.DatabaseContract.getColumnInt;
+import static com.djakapermana.mynotesapp.db.DatabaseContract.getColumnString;
 
 /**
  * Created by Djaka on 28/10/2017.
@@ -61,6 +68,13 @@ public class Note implements Parcelable {
 
     public Note(){
 
+    }
+
+    public Note(Cursor cursor){
+        this.id = getColumnInt(cursor, _ID);
+        this.title = getColumnString(cursor, DatabaseContract.NoteColumns.TITLE);
+        this.description = getColumnString(cursor, DatabaseContract.NoteColumns.DESCRIPTION);
+        this.date = getColumnString(cursor, DatabaseContract.NoteColumns.DATE);
     }
 
     protected Note(Parcel in){
